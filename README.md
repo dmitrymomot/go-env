@@ -19,8 +19,8 @@ var (
 )
 
 func main() {
-	r := chi.NewRouter()
-	r.Get(healthEndpoint, func(w http.ResponseWriter, r *http.Request) {
+    r := chi.NewRouter()
+    r.Get(healthEndpoint, func(w http.ResponseWriter, r *http.Request) {
         w.WriteHeader(http.StatusNoContent)
     })
     http.ListenAndServe(fmt.Sprintf(":%d", httpPort), r)
