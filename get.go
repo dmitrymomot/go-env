@@ -71,3 +71,14 @@ func GetDuration(key string, fallback time.Duration) time.Duration {
 	}
 	return res
 }
+
+// GetBytes func returns environment variable value as a bytes slice
+// If variable doesn't exist or is not set, returns fallback value
+func GetBytes(key string, fallback []byte) []byte {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		return fallback
+	}
+
+	return []byte(value)
+}
