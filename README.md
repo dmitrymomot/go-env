@@ -2,7 +2,6 @@
     
 [![Go Reference](https://pkg.go.dev/badge/github.com/dmitrymomot/go-env.svg)](https://pkg.go.dev/github.com/dmitrymomot/go-env)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dmitrymomot/go-env)](https://goreportcard.com/report/github.com/dmitrymomot/go-env)
-[![Coverage Status](https://coveralls.io/repos/github/dmitrymomot/go-env/badge.svg?branch=master)](https://coveralls.io/github/dmitrymomot/go-env?branch=master)
 [![Tests](https://github.com/dmitrymomot/go-env/actions/workflows/tests.yml/badge.svg)](https://github.com/dmitrymomot/go-env/actions/workflows/tests.yml)
 
 Helpers to work with environment variables.
