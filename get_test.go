@@ -74,3 +74,154 @@ func TestGetBytes(t *testing.T) {
 	os.Setenv("TEST_BYTES", "test")
 	assert.Equal(t, []byte("test"), env.GetBytes("TEST_BYTES", []byte("default value")))
 }
+
+func TestGetStrings(t *testing.T) {
+	assert.Equal(t, []string{"test"}, env.GetStrings("TEST_STRINGS", ",", []string{"test"}))
+	os.Setenv("TEST_STRINGS", "test1,test2")
+	assert.Equal(t, []string{"test1", "test2"}, env.GetStrings("TEST_STRINGS", ",", []string{"default value"}))
+	os.Setenv("TEST_STRINGS", ",")
+	assert.Equal(t, []string{"default value"}, env.GetStrings("TEST_STRINGS", ",", []string{"default value"}))
+}
+
+func TestGetInts(t *testing.T) {
+	assert.Equal(t, []int{1, 2}, env.GetInts("TEST_INTS", ",", []int{1, 2}))
+	os.Setenv("TEST_INTS", "1,2")
+	assert.Equal(t, []int{1, 2}, env.GetInts("TEST_INTS", ",", []int{3, 4}))
+	os.Setenv("TEST_INTS", ",")
+	assert.Equal(t, []int{3, 4}, env.GetInts("TEST_INTS", ",", []int{3, 4}))
+	os.Setenv("TEST_INTS", "1,2,three")
+	assert.Equal(t, []int{1, 2, 3}, env.GetInts("TEST_INTS", ",", []int{1, 2, 3}))
+}
+
+func TestGetFloats(t *testing.T) {
+	assert.Equal(t, []float64{1.23, 4.56}, env.GetFloats("TEST_FLOATS", ",", []float64{1.23, 4.56}))
+	os.Setenv("TEST_FLOATS", "1.23,4.56")
+	assert.Equal(t, []float64{1.23, 4.56}, env.GetFloats("TEST_FLOATS", ",", []float64{7.89, 10.11}))
+	os.Setenv("TEST_FLOATS", ",")
+	assert.Equal(t, []float64{7.89, 10.11}, env.GetFloats("TEST_FLOATS", ",", []float64{7.89, 10.11}))
+	os.Setenv("TEST_FLOATS", "1.23,4.56,seven")
+	assert.Equal(t, []float64{1.23, 4.56, 7.0}, env.GetFloats("TEST_FLOATS", ",", []float64{1.23, 4.56, 7.0}))
+}
+
+func TestGetStringsMap(t *testing.T) {
+	assert.Equal(t,
+		map[string]string{"key1": "value1", "key2": "value2"},
+		env.GetStringsMap("TEST_STRING_MAP", "", "", map[string]string{"key1": "value1", "key2": "value2"}),
+	)
+
+	os.Setenv("TEST_STRING_MAP", "key1=value1,key2=value2")
+	assert.Equal(t,
+		map[string]string{"key1": "value1", "key2": "value2"},
+		env.GetStringsMap("TEST_STRING_MAP", "", "", map[string]string{"key3": "value3", "key4": "value4"}),
+	)
+
+	os.Setenv("TEST_STRING_MAP", ",")
+	assert.Equal(t,
+		map[string]string{"key3": "value3", "key4": "value4"},
+		env.GetStringsMap("TEST_STRING_MAP", "", "", map[string]string{"key3": "value3", "key4": "value4"}),
+	)
+
+	os.Setenv("TEST_STRING_MAP", "=,=,=")
+	assert.Equal(t,
+		map[string]string{"key3": "value3", "key4": "value4"},
+		env.GetStringsMap("TEST_STRING_MAP", "", "", map[string]string{"key3": "value3", "key4": "value4"}),
+	)
+
+	os.Setenv("TEST_STRING_MAP", "key1=value1,key2=value2,key3")
+	assert.Equal(t,
+		map[string]string{"key3": "value3", "key4": "value4"},
+		env.GetStringsMap("TEST_STRING_MAP", "", "", map[string]string{"key3": "value3", "key4": "value4"}),
+	)
+
+	os.Setenv("TEST_STRING_MAP", "key1=value1,key2=value2,key3=")
+	assert.Equal(t,
+		map[string]string{"key1": "value1", "key2": "value2", "key3": ""},
+		env.GetStringsMap("TEST_STRING_MAP", "", "", map[string]string{"key3": "value3", "key4": "value4"}),
+	)
+}
+
+func TestGetIntsMap(t *testing.T) {
+	assert.Equal(t,
+		map[string]int{"key1": 1, "key2": 2},
+		env.GetIntsMap("TEST_INT_MAP", "", "", map[string]int{"key1": 1, "key2": 2}),
+	)
+
+	os.Setenv("TEST_INT_MAP", "key1=1,key2=2")
+	assert.Equal(t,
+		map[string]int{"key1": 1, "key2": 2},
+		env.GetIntsMap("TEST_INT_MAP", "", "", map[string]int{"key3": 3, "key4": 4}),
+	)
+
+	os.Setenv("TEST_INT_MAP", ",")
+	assert.Equal(t,
+		map[string]int{"key3": 3, "key4": 4},
+		env.GetIntsMap("TEST_INT_MAP", "", "", map[string]int{"key3": 3, "key4": 4}),
+	)
+
+	os.Setenv("TEST_INT_MAP", "=,=,=")
+	assert.Equal(t,
+		map[string]int{"key3": 3, "key4": 4},
+		env.GetIntsMap("TEST_INT_MAP", "", "", map[string]int{"key3": 3, "key4": 4}),
+	)
+
+	os.Setenv("TEST_INT_MAP", "key1=1,key2=2,key3")
+	assert.Equal(t,
+		map[string]int{"key3": 3, "key4": 4},
+		env.GetIntsMap("TEST_INT_MAP", "", "", map[string]int{"key3": 3, "key4": 4}),
+	)
+
+	os.Setenv("TEST_INT_MAP", "key1=1,key2=2,key3=")
+	assert.Equal(t,
+		map[string]int32{"key1": 1, "key2": 2, "key3": 0},
+		env.GetIntsMap("TEST_INT_MAP", "", "", map[string]int32{"key3": 3, "key4": 4}),
+	)
+
+	os.Setenv("TEST_INT_MAP", "key1=1,key2=2,key3=three")
+	assert.Equal(t,
+		map[string]int{"key3": 3, "key4": 4},
+		env.GetIntsMap("TEST_INT_MAP", "", "", map[string]int{"key3": 3, "key4": 4}),
+	)
+}
+
+func TestGetFloatsMap(t *testing.T) {
+	assert.Equal(t,
+		map[string]float64{"key1": 1.23, "key2": 4.56},
+		env.GetFloatsMap("TEST_FLOAT_MAP", "", "", map[string]float64{"key1": 1.23, "key2": 4.56}),
+	)
+
+	os.Setenv("TEST_FLOAT_MAP", "key1=1.23,key2=4.56")
+	assert.Equal(t,
+		map[string]float64{"key1": 1.23, "key2": 4.56},
+		env.GetFloatsMap("TEST_FLOAT_MAP", "", "", map[string]float64{"key3": 7.89, "key4": 10.11}),
+	)
+
+	os.Setenv("TEST_FLOAT_MAP", ",")
+	assert.Equal(t,
+		map[string]float64{"key3": 7.89, "key4": 10.11},
+		env.GetFloatsMap("TEST_FLOAT_MAP", "", "", map[string]float64{"key3": 7.89, "key4": 10.11}),
+	)
+
+	os.Setenv("TEST_FLOAT_MAP", "=,=,=")
+	assert.Equal(t,
+		map[string]float64{"key3": 7.89, "key4": 10.11},
+		env.GetFloatsMap("TEST_FLOAT_MAP", "", "", map[string]float64{"key3": 7.89, "key4": 10.11}),
+	)
+
+	os.Setenv("TEST_FLOAT_MAP", "key1=1.23,key2=4.56,key3")
+	assert.Equal(t,
+		map[string]float64{"key3": 7.89, "key4": 10.11},
+		env.GetFloatsMap("TEST_FLOAT_MAP", "", "", map[string]float64{"key3": 7.89, "key4": 10.11}),
+	)
+
+	os.Setenv("TEST_FLOAT_MAP", "key1=1.23,key2=4.56,key3=")
+	assert.Equal(t,
+		map[string]float64{"key1": 1.23, "key2": 4.56, "key3": 0.0},
+		env.GetFloatsMap("TEST_FLOAT_MAP", "", "", map[string]float64{"key3": 7.89, "key4": 10.11}),
+	)
+
+	os.Setenv("TEST_FLOAT_MAP", "key1=1.23,key2=4.56,key3=seven")
+	assert.Equal(t,
+		map[string]float64{"key3": 7.89, "key4": 10.11},
+		env.GetFloatsMap("TEST_FLOAT_MAP", "", "", map[string]float64{"key3": 7.89, "key4": 10.11}),
+	)
+}

@@ -82,3 +82,89 @@ func TestMustBytes(t *testing.T) {
 	os.Setenv("TEST_ENV", "test")
 	assert.Equal(t, []byte("test"), env.MustBytes("TEST_ENV"))
 }
+
+func TestMustStrings(t *testing.T) {
+	assert.Panics(t, func() { env.MustStrings("TEST_ENV_2", ",") })
+	os.Setenv("TEST_ENV", "test1,test2")
+	assert.Equal(t, []string{"test1", "test2"}, env.MustStrings("TEST_ENV", ","))
+	os.Setenv("TEST_STRINGS", ",")
+	assert.Panics(t, func() { env.MustStrings("TEST_STRINGS", ",") })
+}
+
+func TestMustInts(t *testing.T) {
+	assert.Panics(t, func() { env.MustInts[int]("TEST_ENV_2", ",") })
+	os.Setenv("TEST_ENV", "1,2")
+	assert.Equal(t, []int{1, 2}, env.MustInts[int]("TEST_ENV", ","))
+	os.Setenv("TEST_INTS", ",")
+	assert.Panics(t, func() { env.MustInts[int]("TEST_INTS", ",") })
+	os.Setenv("TEST_INTS", "1,2,three")
+	assert.Panics(t, func() { env.MustInts[int]("TEST_INTS", ",") })
+}
+
+func TestMustFloats(t *testing.T) {
+	assert.Panics(t, func() { env.MustFloats[float32]("TEST_ENV_2", ",") })
+	os.Setenv("TEST_ENV", "1.1,2.2")
+	assert.Equal(t, []float32{1.1, 2.2}, env.MustFloats[float32]("TEST_ENV", ","))
+	os.Setenv("TEST_FLOATS", ",")
+	assert.Panics(t, func() { env.MustFloats[float32]("TEST_FLOATS", ",") })
+	os.Setenv("TEST_FLOATS", "1.1,2.2,three")
+	assert.Panics(t, func() { env.MustFloats[float32]("TEST_FLOATS", ",") })
+}
+
+func TestMustStringsMap(t *testing.T) {
+	assert.Panics(t, func() { env.MustStringsMap("TEST_ENV_2", ",", ":") })
+	os.Setenv("TEST_ENV", "key1:value1,key2:value2")
+	assert.Equal(t, map[string]string{"key1": "value1", "key2": "value2"}, env.MustStringsMap("TEST_ENV", ",", ":"))
+	os.Setenv("TEST_STRINGS_MAP", ",")
+	assert.Panics(t, func() { env.MustStringsMap("TEST_STRINGS_MAP", ",", ":") })
+	os.Setenv("TEST_STRINGS_MAP", "key1:value1,key2")
+	assert.Panics(t, func() { env.MustStringsMap("TEST_STRINGS_MAP", ",", ":") })
+	os.Setenv("TEST_STRINGS_MAP", "key1:value1,key2:value2:three")
+	assert.Panics(t, func() { env.MustStringsMap("TEST_STRINGS_MAP", "", "") })
+	os.Setenv("TEST_STRINGS_MAP", "key1:value1,key2:value2,key3:")
+	assert.Equal(t, map[string]string{"key1": "value1", "key2": "value2", "key3": ""}, env.MustStringsMap("TEST_STRINGS_MAP", ",", ":"))
+	os.Setenv("TEST_STRINGS_MAP", "key1:value1,key2:value2,:key3")
+	assert.Equal(t, map[string]string{"key1": "value1", "key2": "value2"}, env.MustStringsMap("TEST_STRINGS_MAP", ",", ":"))
+	os.Setenv("TEST_STRINGS_MAP", ":,:")
+	assert.Panics(t, func() { env.MustStringsMap("TEST_STRINGS_MAP", ",", ":") })
+}
+
+func TestMustIntsMap(t *testing.T) {
+	assert.Panics(t, func() { env.MustIntsMap[int]("TEST_ENV_2", ",", ":") })
+	os.Setenv("TEST_ENV", "key1:1,key2:2")
+	assert.Equal(t, map[string]int{"key1": 1, "key2": 2}, env.MustIntsMap[int]("TEST_ENV", ",", ":"))
+	os.Setenv("TEST_INTS_MAP", ",")
+	assert.Panics(t, func() { env.MustIntsMap[int]("TEST_INTS_MAP", ",", ":") })
+	os.Setenv("TEST_INTS_MAP", "key1:1,key2")
+	assert.Panics(t, func() { env.MustIntsMap[int]("TEST_INTS_MAP", ",", ":") })
+	os.Setenv("TEST_INTS_MAP", "key1:1,key2:2:three")
+	assert.Panics(t, func() { env.MustIntsMap[int]("TEST_INTS_MAP", "", "") })
+	os.Setenv("TEST_INTS_MAP", "key1:1,key2:2,key3:")
+	assert.Equal(t, map[string]int{"key1": 1, "key2": 2, "key3": 0}, env.MustIntsMap[int]("TEST_INTS_MAP", ",", ":"))
+	os.Setenv("TEST_INTS_MAP", "key1:1,key2:2,:key3")
+	assert.Equal(t, map[string]int{"key1": 1, "key2": 2}, env.MustIntsMap[int]("TEST_INTS_MAP", ",", ":"))
+	os.Setenv("TEST_INTS_MAP", ":,:")
+	assert.Panics(t, func() { env.MustIntsMap[int]("TEST_INTS_MAP", ",", ":") })
+	os.Setenv("TEST_INTS_MAP", "key1:1,key2:two")
+	assert.Panics(t, func() { env.MustIntsMap[int]("TEST_INTS_MAP", ",", ":") })
+}
+
+func TestMustFloatsMap(t *testing.T) {
+	assert.Panics(t, func() { env.MustFloatsMap[float32]("TEST_ENV_2", ",", ":") })
+	os.Setenv("TEST_ENV", "key1:1.1,key2:2.2")
+	assert.Equal(t, map[string]float32{"key1": 1.1, "key2": 2.2}, env.MustFloatsMap[float32]("TEST_ENV", ",", ":"))
+	os.Setenv("TEST_FLOATS_MAP", ",")
+	assert.Panics(t, func() { env.MustFloatsMap[float32]("TEST_FLOATS_MAP", ",", ":") })
+	os.Setenv("TEST_FLOATS_MAP", "key1:1.1,key2")
+	assert.Panics(t, func() { env.MustFloatsMap[float32]("TEST_FLOATS_MAP", ",", ":") })
+	os.Setenv("TEST_FLOATS_MAP", "key1:1.1,key2:2.2:three")
+	assert.Panics(t, func() { env.MustFloatsMap[float32]("TEST_FLOATS_MAP", "", "") })
+	os.Setenv("TEST_FLOATS_MAP", "key1:1.1,key2:2.2,key3:")
+	assert.Equal(t, map[string]float32{"key1": 1.1, "key2": 2.2, "key3": 0}, env.MustFloatsMap[float32]("TEST_FLOATS_MAP", ",", ":"))
+	os.Setenv("TEST_FLOATS_MAP", "key1:1.1,key2:2.2,:key3")
+	assert.Equal(t, map[string]float32{"key1": 1.1, "key2": 2.2}, env.MustFloatsMap[float32]("TEST_FLOATS_MAP", ",", ":"))
+	os.Setenv("TEST_FLOATS_MAP", ":,:")
+	assert.Panics(t, func() { env.MustFloatsMap[float32]("TEST_FLOATS_MAP", ",", ":") })
+	os.Setenv("TEST_FLOATS_MAP", "key1:1.1,key2:two")
+	assert.Panics(t, func() { env.MustFloatsMap[float32]("TEST_FLOATS_MAP", ",", ":") })
+}
